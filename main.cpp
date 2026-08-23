@@ -57,7 +57,7 @@ struct UnityEngine_Touch_Fields {
     float m_AzimuthAngle;
 };
 bool debug = false;
-bool test = false;
+bool shop = false;
 bool jump = false;
 bool no_dealth = false;
 bool stopTrain = false;
@@ -65,8 +65,8 @@ float speed = 0.0f;
 float speed1 = 0.0f;
 bool (*original)(void *instance);
 bool origin_call(void *instance) {
-    if (test) {
-        return false;
+    if (shop) {
+        return true;
     }
     return original(instance);
 }
@@ -100,7 +100,7 @@ bool follow_camera(void* instance, void* idk) {
 }
 bool (*old_train)(void* instance);
 bool train(void* instance) {
-    if (instance != NULL) {
+    if (stopTrain) {
         return true;
     }
     return old_train(instance);
@@ -197,7 +197,7 @@ EGLBoolean hook_eglSwapBuffer(EGLDisplay dpy, EGLSurface surface) {
     ImGui::Checkbox("Click", &idk);
     ImGui::SliderFloat("Value",&value,0.0f,100.0f);
     ImGui::Text("Bye!");
-    ImGui::Checkbox("Shop", &test);
+    ImGui::Checkbox("Shop", &shop);
     ImGui::Checkbox("Jump", &jump);
     ImGui::Checkbox("No Death", &no_dealth);
     ImGui::Checkbox("Stop Train", &stopTrain);

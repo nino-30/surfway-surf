@@ -120,7 +120,7 @@ float getMinSpeed1(void* instance) {
     return original_speed1(instance);
 }
 void hack() {
-    void* shop = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway.Core.GameData", "Currency", "get_IsIAP");
+    void* shop = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway.Core.GameData", "Currency", "get_IsIAP", 0);
     DobbyHook(shop, (void *)origin_call, (void **)&original);
     void* jump_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "get_CanJump", 0);
     DobbyHook(jump_off, (void *)get_jump, (void **)&old_jump);
@@ -130,11 +130,11 @@ void hack() {
     DobbyHook(side_off, (void*)no_side, (void**)&original_no_side);
     void* camera_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "CameraGroundedModifier", "Apply", 1);
     DobbyHook(camera_off, (void*)follow_camera, (void**)&original_camera);
-    void* stopTrain = Il2CppGetMethodOffset("Assembly-Csharp.dll", "SYBO.Subway", "MovingTrain", "Disable");
+    void* stopTrain = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "MovingTrain", "Disable", 0);
     DobbyHook(stopTrain, (void*)train, (void**)&old_train);
-    void* minSpeedOff = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "DefaultSpeedController", "get_MinSpeed");
+    void* minSpeedOff = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "DefaultSpeedController", "get_MinSpeed", 0);
     DobbyHook(minSpeedOff, (void*)getMinSpeed, (void**)&original_speed);
-    void* minSpeedOff1 = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "DefaultSpeedController", "get_MaxSpeed");
+    void* minSpeedOff1 = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "DefaultSpeedController", "get_MaxSpeed", 0);
     DobbyHook(minSpeedOff1, (void*)getMinSpeed1, (void**)&original_speed1);
 }
 void touch(bool* mouse) {

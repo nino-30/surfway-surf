@@ -120,7 +120,7 @@ float getMinSpeed1(void* instance) {
     return original_speed1(instance);
 }
 void hack() {
-    void* shop = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway.Core.GameData", "Currency", "get_IsIAP", 0);
+    void* shop = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway.Core.CommonData", "Currency", "get_IsIAP", 0);
     DobbyHook(shop, (void *)origin_call, (void **)&original);
     void* jump_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "get_CanJump", 0);
     DobbyHook(jump_off, (void *)get_jump, (void **)&old_jump);

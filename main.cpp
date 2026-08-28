@@ -214,8 +214,8 @@ EGLBoolean hook_eglSwapBuffer(EGLDisplay dpy, EGLSurface surface) {
         void* jump_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "get_CanJump", 0);
         if (patch) {
             unsigned char bytes[] = {
-                0x80, 0x0c, 0x80, 0x52, 
-                0xc0, 0x03, 0x5f, 0xd6
+                0x20, 0x00, 0x80, 0x52,  // mov w0, #1
+                0xc0, 0x03, 0x5f, 0xd6   // ret
             };
             patchMemory((uintptr_t)jump_off, bytes, sizeof(bytes));
         }

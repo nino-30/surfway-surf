@@ -228,7 +228,7 @@ EGLBoolean hook_eglSwapBuffer(EGLDisplay dpy, EGLSurface surface) {
         }
         if (patch1) {
             unsigned char bytes[] = {
-                0x20, 0x00, 0x80, 0x52,  // mov w0, #1
+                0x00, 0x00, 0x80, 0x52,  // mov w0, #1
                 0xc0, 0x03, 0x5f, 0xd6   // ret
             };
             patchMemory((uintptr_t)shop, bytes, sizeof(bytes));

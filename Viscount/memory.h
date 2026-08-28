@@ -30,6 +30,6 @@ void patchMemory(uintptr_t address, unsigned char byte[], size_t size) {
     }
     memcpy((void*)address, byte, size);
     mprotect((void*)pageStart, pageSize, PROT_READ | PROT_EXEC);
-    __builtin_____clear_cache((char*)pageStart, (char*)(pageStart + pageSize));
+    __builtin___clear_cache((char*)pageStart, (char*)(pageStart + pageSize));
     
 }

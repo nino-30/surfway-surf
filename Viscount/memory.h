@@ -19,3 +19,17 @@ uintptr_t GetBaseAdress(const char* libname) {
     fclose(file);
     return 0;
 }
+
+void patchMemory(uintptr_t address, unsigned char byte[], size_t size) {
+
+    size_t pageSize = sysconf(_SC_PAGESIZE);
+    uintptr_t pageStart = address & ~(pageSize - 1);
+    if (mprotect((void*)pageStart, pageSize, PROT_READ | PROT_WRITE | PROT_EXEC) != 0) {
+        perror("mprotect");
+        return;
+    }
+    memcpy((void*)address, byte, size);
+    mprotect((void*)pageStart, pageSize, PROT_READ | PROT_EXEC);
+    __builtin_____clear_cache((char*)pageStart, (char*)(pageStart + pageSize));
+    
+}

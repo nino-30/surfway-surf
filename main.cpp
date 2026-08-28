@@ -63,6 +63,7 @@ bool no_dealth = false;
 bool stopTrain = false;
 float speed = 0.0f;
 float speed1 = 0.0f;
+bool patch = false;
 bool (*original)(void *instance);
 bool origin_call(void *instance) {
     if (shop) {
@@ -70,13 +71,13 @@ bool origin_call(void *instance) {
     }
     return original(instance);
 }
-bool (*old_jump)(void *instance);
-bool get_jump(void *instance) {
-    if (jump) {
-        return true;
-    }
-    return old_jump(instance);
-}
+// bool (*old_jump)(void *instance);
+// bool get_jump(void *instance) {
+//     if (jump) {
+//         return true;
+//     }
+//     return old_jump(instance);
+// }
 bool (*original_no_front)(void* instance, void* idk);
 bool no_front(void* instance, void* idk) {
     if (no_dealth) {
@@ -123,7 +124,7 @@ void hack() {
     void* shop = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway.Core.CommonData", "Currency", "get_IsIAP", 0);
     DobbyHook(shop, (void *)origin_call, (void **)&original);
     void* jump_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "get_CanJump", 0);
-    DobbyHook(jump_off, (void *)get_jump, (void **)&old_jump);
+    // DobbyHook(jump_off, (void *)get_jump, (void **)&old_jump);
     void* front_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "CheckFrontalImpact", 1);
     DobbyHook(front_off, (void *)no_front, (void**)&original_no_front);
     void* side_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "CheckSideImpact", 1);
@@ -209,6 +210,16 @@ EGLBoolean hook_eglSwapBuffer(EGLDisplay dpy, EGLSurface surface) {
         ImGui::Begin("Debug");
         ImGui::Text("Debug Menu");
         ImGui::Text("FPS  %.1f", ImGui::GetIO().Framerate);
+        ImGui::Checkbox("Patch Memory", &patch);
+        void* jump_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "get_CanJump", 0);
+        if (patch) {
+            unsigned char bytes[] = {
+                0x80, 0x0c, 0x80, 0x52, 
+                0xc0, 0x03, 0x5f, 0xd6
+            };
+            patchMemory((uintptr_t)jump_off, bytes, sizeof(bytes));
+        }
+
         ImGui::End();
     }
     ImGui::Render();

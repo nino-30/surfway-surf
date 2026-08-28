@@ -64,13 +64,14 @@ bool stopTrain = false;
 float speed = 0.0f;
 float speed1 = 0.0f;
 bool patch = false;
-bool (*original)(void *instance);
-bool origin_call(void *instance) {
-    if (shop) {
-        return true;
-    }
-    return original(instance);
-}
+bool patch1 = false;
+// bool (*original)(void *instance);
+// bool origin_call(void *instance) {
+//     if (shop) {
+//         return true;
+//     }
+//     return original(instance);
+// }
 // bool (*old_jump)(void *instance);
 // bool get_jump(void *instance) {
 //     if (jump) {
@@ -122,7 +123,7 @@ float getMinSpeed1(void* instance) {
 }
 void hack() {
     void* shop = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway.Core.CommonData", "Currency", "get_IsIAP", 0);
-    DobbyHook(shop, (void *)origin_call, (void **)&original);
+    // DobbyHook(shop, (void *)origin_call, (void **)&original);
     void* jump_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "get_CanJump", 0);
     // DobbyHook(jump_off, (void *)get_jump, (void **)&old_jump);
     void* front_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "CheckFrontalImpact", 1);
@@ -211,13 +212,23 @@ EGLBoolean hook_eglSwapBuffer(EGLDisplay dpy, EGLSurface surface) {
         ImGui::Text("Debug Menu");
         ImGui::Text("FPS  %.1f", ImGui::GetIO().Framerate);
         ImGui::Checkbox("Patch Memory", &patch);
+        void* shop = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway.Core.CommonData", "Currency", "get_IsIAP", 0);
         void* jump_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "get_CanJump", 0);
+        ImGui::Text("Shop Offset: %p", shop);
+        ImGui::Text("Jump Offset: %p", jump_off);
         if (patch) {
             unsigned char bytes[] = {
                 0x20, 0x00, 0x80, 0x52,  // mov w0, #1
                 0xc0, 0x03, 0x5f, 0xd6   // ret
             };
             patchMemory((uintptr_t)jump_off, bytes, sizeof(bytes));
+        }
+        if (patch1) {
+            unsigned char bytes[] = {
+                0x20, 0x00, 0x80, 0x52,  // mov w0, #1
+                0xc0, 0x03, 0x5f, 0xd6   // ret
+            };
+            patchMemory((uintptr_t)shop, bytes, sizeof(bytes));
         }
 
         ImGui::End();

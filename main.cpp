@@ -214,9 +214,9 @@ EGLBoolean hook_eglSwapBuffer(EGLDisplay dpy, EGLSurface surface) {
         ImGui::Text("Debug Menu");
         ImGui::Text("FPS  %.1f", ImGui::GetIO().Framerate);
         ImGui::Checkbox("Patch Memory", &patch);
-        void* shop = base + 0x3CB5574;
+        void* shop = (void*)(base + 0x3CB5574);
         void* jump_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "get_CanJump", 0);
-        ImGui::Text("Lib base address: %p", base);
+        ImGui::Text("Lib base address: %p", (void*)base);
         ImGui::Text("Shop Offset: %p", shop);
         ImGui::Text("Jump Offset: %p", jump_off);
         if (patch) {

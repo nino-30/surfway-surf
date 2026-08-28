@@ -19,6 +19,8 @@
 #include <unistd.h>
 #include "Viscount/memory.h"
 
+uintptr_t base = 0;
+
 bool clearMousePos = true, setup = false;
 struct UnityEngine_Vector2_Fields {
     float x;
@@ -212,8 +214,9 @@ EGLBoolean hook_eglSwapBuffer(EGLDisplay dpy, EGLSurface surface) {
         ImGui::Text("Debug Menu");
         ImGui::Text("FPS  %.1f", ImGui::GetIO().Framerate);
         ImGui::Checkbox("Patch Memory", &patch);
-        void* shop = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway.Core.CommonData", "Currency", "get_IsIAP", 0);
+        void* shop = base + 0x3CB5574; //Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway.Core.CommonData", "Currency", "get_IsIAP", 0);
         void* jump_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "get_CanJump", 0);
+        ImGui::Text("Lib base address: %p", base);
         ImGui::Text("Shop Offset: %p", shop);
         ImGui::Text("Jump Offset: %p", jump_off);
         if (patch) {
@@ -244,7 +247,7 @@ EGLBoolean hook_eglSwapBuffer(EGLDisplay dpy, EGLSurface surface) {
 
 }
 void *sylphy(void*) {
-    uintptr_t base = 0;
+    
     while ((base = GetBaseAdress("libil2cpp.so")) == 0) {
     sleep(1);
     }

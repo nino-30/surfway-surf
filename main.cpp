@@ -209,13 +209,15 @@ EGLBoolean hook_eglSwapBuffer(EGLDisplay dpy, EGLSurface surface) {
     ImGui::SliderFloat("Speed1", &speed1, 0.0f, 500.0f);
     ImGui::Checkbox("Debug", &debug);
     ImGui::End();
+
     if (debug) {
         ImGui::Begin("Debug");
         ImGui::Text("Debug Menu");
         ImGui::Text("FPS  %.1f", ImGui::GetIO().Framerate);
         ImGui::Checkbox("Patch Memory", &patch);
         ImGui::Checkbox("Patch Shop", &patch1);
-        void* shop = (void*)(base + 0x3CB5574);
+        //void* shop = (void*)(base + 0x3CB5574);
+	void* shop = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway.Core.CommonData", "Currency", "get_IsIAP", 0);
         void* jump_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "get_CanJump", 0);
         ImGui::Text("Lib base address: %p", (void*)base);
         ImGui::Text("Shop Offset: %p", shop);

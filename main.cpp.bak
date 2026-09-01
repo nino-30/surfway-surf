@@ -219,13 +219,9 @@ EGLBoolean hook_eglSwapBuffer(EGLDisplay dpy, EGLSurface surface) {
         //void* shop = (void*)(base + 0x3CB5574);
 	void* shop = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway.Core.CommonData", "Currency", "get_IsIAP", 0);
         void* jump_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "get_CanJump", 0);
-        void* minSpeedOffset = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "DefaultSpeedController", "get_MinSpeed", 0);
-    void* minSpeedOffset1 = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "DefaultSpeedController", "get_MaxSpeed", 0);
         ImGui::Text("Lib base address: %p", (void*)base);
         ImGui::Text("Shop Offset: %p", shop);
         ImGui::Text("Jump Offset: %p", jump_off);
-        ImGui::Text("Min speed: %p", minSpeedOffset);
-        ImGui::Text("Max speed: %p", minSpeedOffset1);
         if (patch) {
             unsigned char bytes[] = {
                 0x20, 0x00, 0x80, 0x52,  // mov w0, #1

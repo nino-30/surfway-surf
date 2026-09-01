@@ -21,6 +21,9 @@ uintptr_t GetBaseAdress(const char* libname) {
 }
 
 void patchMemory(uintptr_t address, unsigned char byte[], size_t size) {
+    if (address == 0 || size == 0 || byte == nullptr) {
+        return;
+    }
 
     size_t pageSize = sysconf(_SC_PAGESIZE);
     uintptr_t pageStart = address & ~(pageSize - 1);
@@ -29,7 +32,5 @@ void patchMemory(uintptr_t address, unsigned char byte[], size_t size) {
         return;
     }
     memcpy((void*)address, byte, size);
-    // mprotect((void*)pageStart, pageSize, PROT_READ | PROT_EXEC);
     __builtin___clear_cache((char*)pageStart, (char*)(pageStart + pageSize));
-    
 }

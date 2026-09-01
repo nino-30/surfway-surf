@@ -21,6 +21,10 @@
 
 uintptr_t base = 0;
 
+static bool IsSafeMethodPtr(void* ptr) {
+    return ptr != nullptr && (uintptr_t)ptr > 0x1000;
+}
+
 bool clearMousePos = true, setup = false;
 struct UnityEngine_Vector2_Fields {
     float x;
@@ -124,29 +128,54 @@ float getMinSpeed1(void* instance) {
     return original_speed1(instance);
 }
 void hack() {
-    void* shop = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway.Core.CommonData", "Currency", "get_IsIAP", 0);
-    // DobbyHook(shop, (void *)origin_call, (void **)&original);
-    void* jump_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "get_CanJump", 0);
-    // DobbyHook(jump_off, (void *)get_jump, (void **)&old_jump);
     void* front_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "CheckFrontalImpact", 1);
-    DobbyHook(front_off, (void *)no_front, (void**)&original_no_front);
+    if (IsSafeMethodPtr(front_off)) {
+        DobbyHook(front_off, (void *)no_front, (void**)&original_no_front);
+    }
+
     void* side_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "CheckSideImpact", 1);
-    DobbyHook(side_off, (void*)no_side, (void**)&original_no_side);
+    if (IsSafeMethodPtr(side_off)) {
+        DobbyHook(side_off, (void*)no_side, (void**)&original_no_side);
+    }
+
     void* camera_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "CameraGroundedModifier", "Apply", 1);
-    DobbyHook(camera_off, (void*)follow_camera, (void**)&original_camera);
+    if (IsSafeMethodPtr(camera_off)) {
+        DobbyHook(camera_off, (void*)follow_camera, (void**)&original_camera);
+    }
+
     void* stopTrain = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "MovingTrain", "Disable", 0);
-    DobbyHook(stopTrain, (void*)train, (void**)&old_train);
+    if (IsSafeMethodPtr(stopTrain)) {
+        DobbyHook(stopTrain, (void*)train, (void**)&old_train);
+    }
+
     void* minSpeedOff = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "DefaultSpeedController", "get_MinSpeed", 0);
-    DobbyHook(minSpeedOff, (void*)getMinSpeed, (void**)&original_speed);
+    if (IsSafeMethodPtr(minSpeedOff)) {
+        DobbyHook(minSpeedOff, (void*)getMinSpeed, (void**)&original_speed);
+    }
+
     void* minSpeedOff1 = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "DefaultSpeedController", "get_MaxSpeed", 0);
-    DobbyHook(minSpeedOff1, (void*)getMinSpeed1, (void**)&original_speed1);
+    if (IsSafeMethodPtr(minSpeedOff1)) {
+        DobbyHook(minSpeedOff1, (void*)getMinSpeed1, (void**)&original_speed1);
+    }
 }
 void touch(bool* mouse) {
     ImGuiIO& io = ImGui::GetIO();
-    int (*TouchCount)(void*) = (int (*)(void*)) (Il2CppGetMethodOffset("UnityEngine.dll", "UnityEngine", "Input", "get_touchCount", 0));
+    void* touchCountPtr = Il2CppGetMethodOffset("UnityEngine.dll", "UnityEngine", "Input", "get_touchCount", 0);
+    if (!IsSafeMethodPtr(touchCountPtr)) {
+        io.MouseDown[0] = false;
+        return;
+    }
+
+    int (*TouchCount)(void*) = (int (*)(void*)) (touchCountPtr);
     int touchCount = TouchCount(nullptr);
-    if (touchCount > 0) {
-        UnityEngine_Touch_Fields touch = ((UnityEngine_Touch_Fields (*)(int)) (Il2CppGetMethodOffset("UnityEngine.dll", "UnityEngine", "Input", "GetTouch", 1))) (0);
+    if (touchCount > 0 && touchCount < 16) {
+        void* getTouchPtr = Il2CppGetMethodOffset("UnityEngine.dll", "UnityEngine", "Input", "GetTouch", 1);
+        if (!IsSafeMethodPtr(getTouchPtr)) {
+            io.MouseDown[0] = false;
+            return;
+        }
+
+        UnityEngine_Touch_Fields touch = ((UnityEngine_Touch_Fields (*)(int)) (getTouchPtr)) (0);
         float reverseY = io.DisplaySize.y - touch.m_Position.fields.y;
 
         switch (touch.m_Phase) {
@@ -216,29 +245,26 @@ EGLBoolean hook_eglSwapBuffer(EGLDisplay dpy, EGLSurface surface) {
         ImGui::Text("FPS  %.1f", ImGui::GetIO().Framerate);
         ImGui::Checkbox("Patch Memory", &patch);
         ImGui::Checkbox("Patch Shop", &patch1);
-        void* shop = (void*)(base + 0x3CB5574);
-	//void* shop = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway.Core.CommonData", "Currency", "get_IsIAP", 0);
         void* jump_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "get_CanJump", 0);
         void* minSpeedOffset = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "DefaultSpeedController", "get_MinSpeed", 0);
-    void* minSpeedOffset1 = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "DefaultSpeedController", "get_MaxSpeed", 0);
+        void* minSpeedOffset1 = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "DefaultSpeedController", "get_MaxSpeed", 0);
         ImGui::Text("Lib base address: %p", (void*)base);
-        ImGui::Text("Shop Offset: %p", shop);
         ImGui::Text("Jump Offset: %p", jump_off);
         ImGui::Text("Min speed: %p", minSpeedOffset);
         ImGui::Text("Max speed: %p", minSpeedOffset1);
-        if (patch) {
+        if (patch && IsSafeMethodPtr(jump_off)) {
             unsigned char bytes[] = {
-                0x20, 0x00, 0x80, 0x52,  // mov w0, #1
-                0xc0, 0x03, 0x5f, 0xd6   // ret
+                0x20, 0x00, 0x80, 0x52,
+                0xc0, 0x03, 0x5f, 0xd6
             };
             patchMemory((uintptr_t)jump_off, bytes, sizeof(bytes));
         }
-        if (patch1) {
+        if (patch1 && IsSafeMethodPtr(minSpeedOffset1)) {
             unsigned char bytes[] = {
-                0x00, 0x00, 0x80, 0x52,  // mov w0, #1
-                0xc0, 0x03, 0x5f, 0xd6   // ret
+                0x00, 0x00, 0x80, 0x52,
+                0xc0, 0x03, 0x5f, 0xd6
             };
-            patchMemory((uintptr_t)shop, bytes, sizeof(bytes));
+            patchMemory((uintptr_t)minSpeedOffset1, bytes, sizeof(bytes));
         }
 
         ImGui::End();
@@ -256,7 +282,7 @@ EGLBoolean hook_eglSwapBuffer(EGLDisplay dpy, EGLSurface surface) {
 void *sylphy(void*) {
     
     while ((base = GetBaseAdress("libil2cpp.so")) == 0) {
-    sleep(3);
+    sleep(1);
     }
 
 
@@ -270,7 +296,7 @@ void *sylphy(void*) {
         return nullptr;
     }
     DobbyHook(swap, (void*)hook_eglSwapBuffer, (void**)&orig_eglSwapBuffers); 
-    hack();
+    // hack();
     return nullptr;
 }
 __attribute__((constructor))

@@ -71,6 +71,7 @@ float speed = 0.0f;
 float speed1 = 0.0f;
 bool patch = false;
 bool patch1 = false;
+bool patch2 = false;
 // bool (*original)(void *instance);
 // bool origin_call(void *instance) {
 //     if (shop) {
@@ -243,15 +244,19 @@ EGLBoolean hook_eglSwapBuffer(EGLDisplay dpy, EGLSurface surface) {
         ImGui::Begin("Debug");
         ImGui::Text("Debug Menu");
         ImGui::Text("FPS  %.1f", ImGui::GetIO().Framerate);
-        ImGui::Checkbox("Patch Memory", &patch);
+        ImGui::Checkbox("Patch Jump", &patch);
         ImGui::Checkbox("Patch Shop", &patch1);
-        void* jump_off = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.RunnerCore.Character", "CharacterMotor", "get_CanJump", 0);
-        void* minSpeedOffset = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "DefaultSpeedController", "get_MinSpeed", 0);
-        void* minSpeedOffset1 = Il2CppGetMethodOffset("Assembly-CSharp.dll", "SYBO.Subway", "DefaultSpeedController", "get_MaxSpeed", 0);
+        ImGui::Checkbox("Patch minSpeed", &patch2);
+        void* shopoff = (void*)(base + 0x3D009CC);
+        void* jump_off = (void*)(base + 0x1F02FE8);
+        void* minSpeedOffset = (void*)(base + 0x1F506AC);
+        void* maxSpeedOffset = (void*)(base + 0x1F506C8);
+       
         ImGui::Text("Lib base address: %p", (void*)base);
+        ImGui::Text("Shop Offset: %p", shopoff);
         ImGui::Text("Jump Offset: %p", jump_off);
         ImGui::Text("Min speed: %p", minSpeedOffset);
-        ImGui::Text("Max speed: %p", minSpeedOffset1);
+        ImGui::Text("Max speed: %p", maxSpeedOffset);
         if (patch && IsSafeMethodPtr(jump_off)) {
             unsigned char bytes[] = {
                 0x20, 0x00, 0x80, 0x52,
@@ -259,14 +264,22 @@ EGLBoolean hook_eglSwapBuffer(EGLDisplay dpy, EGLSurface surface) {
             };
             patchMemory((uintptr_t)jump_off, bytes, sizeof(bytes));
         }
-        if (patch1 && IsSafeMethodPtr(minSpeedOffset1)) {
+        if (patch1 && IsSafeMethodPtr(shopoff)) {
             unsigned char bytes[] = {
                 0x00, 0x00, 0x80, 0x52,
                 0xc0, 0x03, 0x5f, 0xd6
             };
-            patchMemory((uintptr_t)minSpeedOffset1, bytes, sizeof(bytes));
+            patchMemory((uintptr_t)shopoff, bytes, sizeof(bytes));
         }
-
+        if (patch2 && IsSafeMethodPtr(minSpeedOffset)) {
+            unsigned char bytes[] = {
+                0x41, 0x7f, 0xa8, 0x52,
+                0x20, 0x00, 0x27, 0x1e,
+                0xc0, 0x03, 0x5f, 0xd6
+            };
+            patchMemory((uintptr_t)minSpeedOffset, bytes, sizeof(bytes));
+            patchMemory((uintptr_t)maxSpeedOffset, bytes, sizeof(bytes));
+        }
         ImGui::End();
     }
     ImGui::Render();
